@@ -1,7 +1,6 @@
 (in-package :jsonrpc)
 
 (defvar *json-ppd* (copy-pprint-dispatch nil))
-(defvar *default-ppd* (copy-pprint-dispatch nil))
 
 (defmacro def-json-ppd (type (obj &rest rest) &body body)
   `(set-pprint-dispatch
@@ -11,6 +10,10 @@
       ,@body)
     0
     *json-ppd*))
+
+(let ((fn (pprint-dispatch 'string (copy-pprint-dispatch nil))))
+  (defun write-quoted-string (string)
+    (funcall fn *standard-output* string)))
 
 (defun write-pair (stream pair &rest _)
   (declare (ignore _))
@@ -22,17 +25,10 @@
 (deftype literal  () '(member :true :false :null))
 (deftype true () '(eql t))
 
-(def-json-ppd literal (obj)
-  (write-string (string-downcase (symbol-name obj))))
-
-(def-json-ppd true (obj)
-  (write-string "true"))
-
-(def-json-ppd string (str)
-  (write str :pprint-dispatch *default-ppd*))
-
-(def-json-ppd symbol (sym)
-  (write (string-downcase (symbol-name sym)) :pprint-dispatch *default-ppd*))
+(def-json-ppd literal (obj) (write-string (string-downcase (symbol-name obj))))
+(def-json-ppd true    (obj) (write-string "true"))
+(def-json-ppd string  (str) (write-quoted-string str))
+(def-json-ppd symbol  (sym) (write-quoted-string (string-downcase (symbol-name sym))))
 
 (def-json-ppd vector (vec)
   (write-string "[")
@@ -43,7 +39,7 @@
 
 (def-json-ppd list (lst)
   (if (alist-p lst)
-      (format t "{~{~/jsonrpc.writer::write-pair/~^,~}}" lst)
+      (format t "{~{~/jsonrpc::write-pair/~^,~}}" lst)
     (format t "[~{~S~^,~}]" lst)))
 
 (def-json-ppd hash-table (hash &aux (first t))
