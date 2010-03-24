@@ -1,0 +1,18 @@
+[概要]
+- Common LispのJSON-RPCライブラリ
+
+[機能]
+- JSONデコード/JSONエンコード
+- JSON-RPCクライアント
+
+[依存パッケージ]
+- usocket
+
+[パッケージ名]
+- jsonrpc
+
+[API]
+- write-json関数
+  (write-json lisp-object &optional (stream *standard-input*))
+
+- *json-ppd*変数
