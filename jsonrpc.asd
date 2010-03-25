@@ -9,4 +9,6 @@
   :serial t 
   :depends-on (:usocket)
   :components ((:file "package")
-	       (:file "write-json")))
+	       (:file "write-json")
+	       (:file "read-json")
+	       (:file "client")))
